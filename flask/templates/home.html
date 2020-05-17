@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockBot</title>
+    <script type= 'text/javascript' src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+</head>
+<body>
+    <script src="{{url_for('static', filename='js/line.js')}}"></script>
+    <h1>Welcome to Automatic Trading Application!</h1>
+    <p>{{stock_name}} is at {{stock_price}}</p>
+    
+    <canvas id='lineChart1' width='1600' height='900'></canvas>
+    <script>plotLineChart({{stock_value_plot|tojson}} ,'lineChart1')</script>
+</body>
+</html>
