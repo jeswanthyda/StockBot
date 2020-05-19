@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block contentHead %}
+<script type= 'text/javascript' src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+{% endblock %}
+
+{% block contentNavBar %}
+<ul class="navbar-nav mr-auto">
+    <li class="nav-item">
+      <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+    </li>
+    <li class="nav-item active">
+      <a class="nav-link" href="/line">Line</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="/portfolio">Portfolio</a>
+    </li>
+    <!-- <li class="nav-item">
+      <a class="nav-link disabled" href="https://getbootstrap.com/docs/4.4/examples/jumbotron/#" tabindex="-1" aria-disabled="true">Disabled</a>
+    </li> -->
+    <!-- <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" href="https://getbootstrap.com/docs/4.4/examples/jumbotron/#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+      <div class="dropdown-menu" aria-labelledby="dropdown01">
+        <a class="dropdown-item" href="https://getbootstrap.com/docs/4.4/examples/jumbotron/#">Action</a>
+        <a class="dropdown-item" href="https://getbootstrap.com/docs/4.4/examples/jumbotron/#">Another action</a>
+        <a class="dropdown-item" href="https://getbootstrap.com/docs/4.4/examples/jumbotron/#">Something else here</a>
+      </div>
+    </li> -->
+  </ul>
+{% endblock %}
+
+{% block contentBody %}
+<script src="{{url_for('static', filename='js/line.js')}}"></script>
+<h1 style="text-align: center; padding: top 2;">Today's hot stocks that make us rich!</h1>
+<!-- <form method="POST" action="{{ url_for('line') }}">
+    <label for="symbol">Stock Symbol:</label><br>
+    <input type="text" name="symbol"><br>
+    <button type="submit">Get Data</button>
+</form> -->
+
+<div class="card-columns justify-content-center align-items-center" style="padding-top: 50px;">
+{% for stock_price,stock_name,stock_value_plot in data %}
+    <div class="card" style="width: 24rem;">
+        <canvas id='{{stock_name}}'></canvas>
+        <div class="card-body">
+            <h5 class="card-title">{{stock_name}}</h5>
+            <p class="card-text">Current Value : ${{stock_price}}</p>
+            <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+        </div>
+        </div>
+    <script>plotLineChart({{stock_value_plot|tojson}} ,'{{stock_name}}')</script>
+{% endfor %}
+</div>
+
+{% endblock %}

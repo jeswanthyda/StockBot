@@ -1,17 +1,63 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StockBot</title>
-    <script type= 'text/javascript' src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
-</head>
-<body>
-    <script src="{{url_for('static', filename='js/line.js')}}"></script>
-    <h1>Welcome to Automatic Trading Application!</h1>
-    <p>{{stock_name}} is at {{stock_price}}</p>
-    
-    <canvas id='lineChart1' width='1600' height='900'></canvas>
-    <script>plotLineChart({{stock_value_plot|tojson}} ,'lineChart1')</script>
-</body>
-</html>
+{% extends 'base.html' %}
+{% block contentNavBar %}
+<ul class="navbar-nav mr-auto">
+    <li class="nav-item active">
+      <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="/line">Line</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="/portfolio">Portfolio</a>
+    </li>
+    <!-- <li class="nav-item">
+      <a class="nav-link disabled" href="https://getbootstrap.com/docs/4.4/examples/jumbotron/#" tabindex="-1" aria-disabled="true">Disabled</a>
+    </li> -->
+    <!-- <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" href="https://getbootstrap.com/docs/4.4/examples/jumbotron/#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+      <div class="dropdown-menu" aria-labelledby="dropdown01">
+        <a class="dropdown-item" href="https://getbootstrap.com/docs/4.4/examples/jumbotron/#">Action</a>
+        <a class="dropdown-item" href="https://getbootstrap.com/docs/4.4/examples/jumbotron/#">Another action</a>
+        <a class="dropdown-item" href="https://getbootstrap.com/docs/4.4/examples/jumbotron/#">Something else here</a>
+      </div>
+    </li> -->
+  </ul>
+{% endblock %}
+{% block contentBody %}
+<main role="main">
+
+  <!-- Main jumbotron for a primary marketing message or call to action -->
+  <div class="jumbotron">
+    <div class="container">
+      <h1 class="display-3">Hello! I am StockBot</h1>
+      <p>An autonomous web application designed to trade stocks with the best possible strategies.  </p>
+      <p><a class="btn btn-primary btn-lg" href="/" role="button">Portfolio »</a></p>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Example row of columns -->
+    <div class="row">
+      <div class="col-md-4">
+        <h2>Decision on Top Stocks</h2>
+        <p>There are millons of stocks that change every minute. Learn how I decide on which stocks to monitor everyday for efficient trading!</p>
+        <p><a class="btn btn-secondary" href="/" role="button">View details »</a></p>
+      </div>
+      <div class="col-md-4">
+        <h2>Trading Strategies</h2>
+        <p>You want to know how I consistently make profits? Shhh! It is a secret. But I will tell you!</p>
+        <p><a class="btn btn-secondary" href="/" role="button">View details »</a></p>
+      </div>
+      <div class="col-md-4">
+        <h2>Tech Stack</h2>
+        <p>My developers spent countless hours to build me! Have a look at their work!</p>
+        <p><a class="btn btn-secondary" href="/" role="button">View details »</a></p>
+      </div>
+    </div>
+
+    <hr>
+
+  </div> <!-- /container -->
+
+</main>
+{% endblock %}

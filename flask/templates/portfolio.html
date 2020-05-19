@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block contentNavBar %}
+<ul class="navbar-nav mr-auto">
+    <li class="nav-item">
+      <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="/line">Line</a>
+    </li>
+    <li class="nav-item active">
+        <a class="nav-link" href="/portfolio">Portfolio</a>
+      </li>
+  </ul>
+{% endblock %}
+{% block contentBody %}
+<div class="card-deck justify-content-center align-items-center" style="padding-top: 50px">
+    <div class="card text-white bg-info mb-3" style="max-width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">{{current_values.capital}}</h5>
+          <p class="card-text">Capital Investment</p>
+        </div>
+    </div>
+    <div class="card text-white bg-info mb-3" style="max-width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">{{current_values.cash}}</h5>
+          <p class="card-text">Present Cash Value</p>
+        </div>
+    </div>
+    <div class="card text-white bg-info mb-3" style="max-width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">{{current_values.stock}}</h5>
+          <p class="card-text">Present Stock Value</p>
+        </div>
+    </div>
+    <div class="card text-white bg-info mb-3" style="max-width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">{{current_values.profit}}</h5>
+          <p class="card-text">Profit gained</p>
+        </div>
+    </div>
+    
+</div>
+Profits history : plot <br>
+
+<div class="justify-content-center align-items-center" style="padding-top: 50px">
+    <h5 class="text-center">Stock Inventory</h5>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Time Stamp</th>
+              <th scope="col">Stock Symbol</th>
+              <th scope="col">Buy Value</th>
+              <th scope="col">Current Value</th>
+              <th scope="col">Volume</th>
+            </tr>
+          </thead>
+          <tbody>
+              {% for row in stock_inventory %}
+              <tr>
+                <th scope="row">{{row.investmentID}}</th>
+                <td>{{row.timeStamp}}</td>
+                <td>{{row.stockSymbol}}</td>
+                <td>{{row.buyValue}}</td>
+                <td>{{row.currentValue}}</td>
+                <td>{{row.volume}}</td>
+              </tr>
+              {%endfor%}
+          </tbody>
+    </table>
+</div>
+
+
+Company wise value in stocks: Table (dynamic refresh every minute)<br>
+
+
+{% endblock %}

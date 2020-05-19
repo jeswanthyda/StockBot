@@ -8,9 +8,23 @@ function plotLineChart(plot_params,plotID) {
         labels: plot_params['x_axis'],
         datasets: [
         { 
-            data: plot_params['y_axis']
+            label:plotID + ' Value',
+            data: plot_params['y_axis'],
+            fill: false,
+            'borderColor': "rgb(75,192,192)",
+            'lineTension': 0.1,
         }
         ]
+    },
+    options: {
+        scales: {
+            xAxes: [{
+                ticks: {
+                    display: false
+                }
+            }]
+        }
     }
     });
 }
+
