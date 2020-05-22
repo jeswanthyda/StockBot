@@ -44,7 +44,10 @@
         <canvas id='{{stock_name}}'></canvas>
         <div class="card-body">
             <h5 class="card-title">{{stock_name}}</h5>
-            <p class="card-text">Current Value : ${{stock_price}}</p>
+            <p class="card-text">
+                Current Value : ${{stock_price}} <br>
+                Last Update : {{stock_value_plot['x_axis'][-1]}} <br>
+            </p>
             <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
         </div>
         </div>
