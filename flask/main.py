@@ -15,7 +15,7 @@ class Stock:
     def updateValues(self):
         (data, meta_data) = self.ts.get_intraday(symbol=self.stock_name,interval='1min')
         currentValue = data['4. close'][-1]
-        stock_value_plot = {'x_axis':list(data.index), 'y_axis':list(data['4. close'])}
+        stock_value_plot = {'x_axis':list(map(str,data.index)), 'y_axis':list(data['4. close'])}
         return currentValue, stock_value_plot
 
     #Can write Buy, Sell methods here
@@ -23,8 +23,8 @@ class Stock:
 
 class MDB:
 
-    def __init__(self):
-        self.client = pymongo.MongoClient("mongodb+srv://dbuser:StockBot@cluster0-gbfdp.mongodb.net/test?retryWrites=true&w=majority")
+    def __init__(self,username,password):
+        self.client = pymongo.MongoClient("mongodb+srv://{}:{}@cluster0-gbfdp.mongodb.net/test?retryWrites=true&w=majority".format(username,password))
         self.db = self.client.Portfolio
         self.currentData = self.db.currentData
         self.inventory = self.db.inventory
@@ -43,7 +43,7 @@ class MDB:
 #Stocks and corresponding keys
 alpha_vantage_key = 'UZZYK4G5CR2JS7AZ'
 
-database = MDB()
+database = MDB('dbuser','StockBot')
     
 
 @app.route("/line")
@@ -56,6 +56,7 @@ def line():
         new_stock = Stock(s,alpha_vantage_key)
         stock_name_list.append(s)
         value,stock_value_plot = new_stock.updateValues()
+        print(value,stock_value_plot)
         stock_price_list.append(value)
         stock_value_plot_list.append(stock_value_plot)
     return render_template('line.html',data=list(zip(stock_price_list,stock_name_list,stock_value_plot_list)))
