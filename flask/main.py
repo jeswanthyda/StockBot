@@ -1,24 +1,25 @@
 from flask import Flask, render_template, request
 import requests
 import pymongo
-from alpha_vantage.timeseries import TimeSeries
+# from alpha_vantage.timeseries import TimeSeries
 
 app = Flask(__name__)
 
-class Stock:
+#TODO: Modify according to buy/sell
+# class Stock:
 
-    def __init__(self,stock_name,alpha_vantage_key):
-        self.stock_name = stock_name
-        self.ts = TimeSeries(alpha_vantage_key,output_format='pandas')
+#     def __init__(self,stock_name,alpha_vantage_key):
+#         self.stock_name = stock_name
+#         self.ts = TimeSeries(alpha_vantage_key,output_format='pandas')
 
-    #Any methods that perform action on the stock go here
-    def updateValues(self):
-        (data, meta_data) = self.ts.get_intraday(symbol=self.stock_name,interval='1min')
-        currentValue = data['4. close'][-1]
-        stock_value_plot = {'x_axis':list(map(str,data.index)), 'y_axis':list(data['4. close'])}
-        return currentValue, stock_value_plot
+#     #Any methods that perform action on the stock go here
+#     def updateValues(self):
+#         (data, meta_data) = self.ts.get_intraday(symbol=self.stock_name,interval='1min')
+#         currentValue = data['4. close'][-1]
+#         stock_value_plot = {'x_axis':list(map(str,data.index)), 'y_axis':list(data['4. close'])}
+#         return currentValue, stock_value_plot
 
-    #Can write Buy, Sell methods here
+#     #Can write Buy, Sell methods here
 
 
 class MDB:
@@ -28,6 +29,7 @@ class MDB:
         self.db = self.client.Portfolio
         self.currentData = self.db.currentData
         self.inventory = self.db.inventory
+        self.intraday = self.db.intraday_stockval
 
     def get_current_values(self):
         query = {'documentID':'currentValues'}
@@ -40,6 +42,24 @@ class MDB:
     def get_stock_inventory(self):
         return self.inventory.find({})
 
+    def get_intraday_plot(self):
+        stocks = self.intraday.find({})
+        stock_names = []
+        stock_timestamp_price = []
+
+        for s in stocks:
+            stock_names.append(s['index'])
+            instance_time = []
+            instance_price = []
+            for instance in s['data']:
+                instance_time.append(instance['Datetime'])
+                instance_price.append(instance['Close'])
+            stock_timestamp_price.append({'x_axis':list(map(str,instance_time[::-1])), 'y_axis':list(instance_price[::-1])})
+        
+        return stock_names,stock_timestamp_price
+
+
+
 #Stocks and corresponding keys
 alpha_vantage_key = 'UZZYK4G5CR2JS7AZ'
 
@@ -48,18 +68,8 @@ database = MDB('dbuser','StockBot')
 
 @app.route("/line")
 def line():
-    stock_price_list = []
-    stock_name_list = []
-    stock_value_plot_list = []
-    symbols = database.get_current_stocks()
-    for s in symbols:
-        new_stock = Stock(s,alpha_vantage_key)
-        stock_name_list.append(s)
-        value,stock_value_plot = new_stock.updateValues()
-        print(value,stock_value_plot)
-        stock_price_list.append(value)
-        stock_value_plot_list.append(stock_value_plot)
-    return render_template('line.html',data=list(zip(stock_price_list,stock_name_list,stock_value_plot_list)))
+    stock_name_list,stock_value_plot_list = database.get_intraday_plot()
+    return render_template('line.html',data=list(zip(stock_name_list,stock_value_plot_list)))
     
 
 @app.route("/")
