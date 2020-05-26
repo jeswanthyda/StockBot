@@ -1,7 +1,11 @@
 from flask import Flask, render_template, request
 import requests
 import pymongo
+from datetime import datetime
+from dateutil import tz
+
 # from alpha_vantage.timeseries import TimeSeries
+
 
 app = Flask(__name__)
 
@@ -30,6 +34,9 @@ class MDB:
         self.currentData = self.db.currentData
         self.inventory = self.db.inventory
         self.intraday = self.db.intraday_stockval
+        
+        self.from_zone = tz.gettz('UTC')
+        self.to_zone = tz.gettz('America/New_York')
 
     def get_current_values(self):
         query = {'documentID':'currentValues'}
@@ -52,16 +59,12 @@ class MDB:
             instance_time = []
             instance_price = []
             for instance in s['data']:
-                instance_time.append(instance['Datetime'])
+                timestamp = instance['Datetime'].replace(tzinfo=self.from_zone)
+                instance_time.append(timestamp.astimezone(self.to_zone))
                 instance_price.append(instance['Close'])
             stock_timestamp_price.append({'x_axis':list(map(str,instance_time[::-1])), 'y_axis':list(instance_price[::-1])})
         
         return stock_names,stock_timestamp_price
-
-
-
-#Stocks and corresponding keys
-alpha_vantage_key = 'UZZYK4G5CR2JS7AZ'
 
 database = MDB('dbuser','StockBot')
     
@@ -83,4 +86,4 @@ def portfolio():
     return render_template('portfolio.html',current_values=current_values,stock_inventory=stock_inventory)
     
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
