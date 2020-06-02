@@ -66,7 +66,7 @@ def intraday_updates(symbols, num_minutes_data, num_stocks):
         data_dict = data.to_dict("records")
        
         #db.intraday_stockval.insert_one({"document_id": "stock_{}".format(i),"index":symbol,"data":data_dict})
-        db.intraday_stockval.update_one({"document-id": "stock_{}".format(i)}, 
+        db.intraday_stockval.update({"document-id": "stock_{}".format(i)}, 
                                     {"document-id": "stock_{}".format(i),"index": symbol,"last-refreshed": datetime.now(est), "data": data_dict}, 
                                     upsert= True)
         
@@ -77,9 +77,9 @@ if __name__ == "__main__":
     num_stocks = 10
     while True:
         est = timezone('US/Eastern')
-        if datetime.now(est).hour == 9:
+        if datetime.now(est).hour == 9 and datetime.now(est).minute == 0:
             webscrape_companies()
-
+        #webscrape_companies()
         query = {'documentID':'currentStocks'}
         x = db.currentData.find_one(query)
         symbols = x['stockSymbols'] + x['carryForward']
