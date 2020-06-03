@@ -1,8 +1,10 @@
 from flask import Flask, render_template, request
 import requests
-import pymongo
-from datetime import datetime
-from dateutil import tz
+import sys
+
+#Tell sys to look for utils in Main Root
+sys.path.append('./..')
+from utils import MDB
 
 # from alpha_vantage.timeseries import TimeSeries
 
@@ -24,47 +26,6 @@ app = Flask(__name__)
 #         return currentValue, stock_value_plot
 
 #     #Can write Buy, Sell methods here
-
-
-class MDB:
-
-    def __init__(self,username,password):
-        self.client = pymongo.MongoClient("mongodb+srv://{}:{}@cluster0-gbfdp.mongodb.net/test?retryWrites=true&w=majority".format(username,password))
-        self.db = self.client.Portfolio
-        self.currentData = self.db.currentData
-        self.inventory = self.db.inventory
-        self.intraday = self.db.intraday_stockval
-        
-        self.from_zone = tz.gettz('UTC')
-        self.to_zone = tz.gettz('America/New_York')
-
-    def get_current_values(self):
-        query = {'documentID':'currentValues'}
-        return self.currentData.find_one(query)
-    
-    def get_current_stocks(self):
-        query = { 'documentID':'currentStocks' }
-        return self.currentData.find_one(query)['stockSymbols']
-
-    def get_stock_inventory(self):
-        return self.inventory.find({})
-
-    def get_intraday_plot(self):
-        stocks = self.intraday.find({})
-        stock_names = []
-        stock_timestamp_price = []
-
-        for s in stocks:
-            stock_names.append(s['index'])
-            instance_time = []
-            instance_price = []
-            for instance in s['data']:
-                timestamp = instance['Datetime'].replace(tzinfo=self.from_zone)
-                instance_time.append(timestamp.astimezone(self.to_zone))
-                instance_price.append(instance['Close'])
-            stock_timestamp_price.append({'x_axis':list(map(str,instance_time[::-1])), 'y_axis':list(instance_price[::-1])})
-        
-        return stock_names,stock_timestamp_price
 
 database = MDB('dbuser','StockBot')
     
