@@ -17,7 +17,11 @@ trade = TradeStrategy()
 if __name__ == "__main__":
 
     while True:
+        #TODO:Check time stamp for new dataframe to stop operating during off hours. 
+        #TODO:Check if av_stock >0
         timeBegin = time.time()
+
+        # TODO: Raksha - Update this part and utils
         #Step1 - update hot stocks - should be one line call (check for 9 am and tackling inventory has to happen in some class method)
         est = timezone('US/Eastern')
         if datetime.now(est).hour == 9 and datetime.now(est).minute == 0:

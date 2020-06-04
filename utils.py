@@ -53,6 +53,7 @@ class MDB:
             'action':action
         }
         x = self.tradelogs.insert_one(log)
+        print('check:',symbol,action)
         return
     
     def add_inventory(self,timestamp,symbol,buyvalue,currentvalue,action,volume):
@@ -182,7 +183,7 @@ class TradeStrategy:
         #print(timestamp)
 
         stockvalue = df.iloc[-1,:]['Close']
-        
+        print(timestamp, action, stockvalue)
         return timestamp, action, stockvalue
 
     def calculate_maxBuyingCap(self,cash,av_stocks):
