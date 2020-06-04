@@ -134,9 +134,6 @@ class MDB:
         return
 
 
-
-
-
 class TradeStrategy:
 
     def __init__(self):
@@ -192,3 +189,31 @@ class TradeStrategy:
     def calulate_profit(self,buying_price,selling_price,volume):
         profit = (selling_price-buying_price)*volume
         return profit
+    
+    def get_volume(self,max_buycap,stockvalue):
+        volume = int(max_buycap/stockvalue)
+        return volume
+
+    def buy_stock(self,database,timestamp,sym,stockvalue,action,volume):
+        data = database.currentData.find_one({'documentID': 'currentValues'})
+        av_stocks = database.get_avstocks()
+        buyValue = volume*stockvalue
+        database.push_tradelogs(timestamp, sym, stockvalue, action,volume)
+        database.add_inventory(timestamp,sym,stockvalue,stockvalue,action,volume)
+        database.update_currentData_buy(data['cash']-buyValue, av_stocks-1)
+        #print("Added to inventory:",sym)
+        return 
+    
+    def sell_stock(self,database,timestamp,sym,stockvalue,action):
+        inv = database.inventory.find_one({'stockSymbol':sym})
+        data = database.currentData.find_one({'documentID': 'currentValues'})
+        av_stocks = database.get_avstocks()
+        profit = self.calulate_profit(inv['buyValue'],stockvalue, inv['volume'])
+        database.push_tradelogs(timestamp, sym, stockvalue, action, inv['volume'])
+        cash = stockvalue*inv['volume']
+        database.delete_inventory(sym)
+        database.update_currentData_sell(data['cash']+cash, data['profit']+profit, av_stocks+1)
+        if sym in database.currentData.find_one({"documentID":"currentStocks"})['carryForward']:
+            database.remove_symbol(sym)
+        print("removed from inventory:",sym)
+        return
