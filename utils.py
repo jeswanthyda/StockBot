@@ -1,7 +1,9 @@
 import pymongo
 from datetime import datetime
 from dateutil import tz
-
+import pandas as pd 
+import numpy as np
+import time
 """
 All the classes and required methods go here
 """
@@ -123,14 +125,15 @@ class MDB:
     def update_stock_val_inventory(self):
         symbols = self.get_inventory_symb()
         stock_val = 0
-        for s in symbols:
-            stock_val += s['data']['0']['Close']
+        for symbol in symbols:
+            s = self.intraday.find_one({'index':symbol})
+            stock_val += s['data'][0]['Close']
             query = {'stockSymbol':s}
-            newvalues = { "$set": {"currentValue":s['data']['0']['Close']} }
+            newvalues = { "$set": {"currentValue":s['data'][0]['Close']} }
             self.inventory.update_one(query, newvalues)
         query = {'documentID':'currentValues'}
         newvalues = { "$set": {"stock":stock_val} }
-        self.currentData.update_one(newvalues)
+        self.currentData.update_one(query,newvalues)
         return
 
 
