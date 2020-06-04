@@ -114,6 +114,27 @@ class MDB:
             stock_timestamp_price.append({'x_axis':list(map(str,instance_time[::-1])), 'y_axis':list(instance_price[::-1])})
         
         return stock_names,stock_timestamp_price
+    
+    def get_inventory_symb(self):
+        symbs = [col['stockSymbol'] for col in self.inventory.find()]
+        return symbs
+
+
+    def update_stock_val_inventory(self):
+        symbols = self.get_inventory_symb()
+        stock_val = 0
+        for s in symbols:
+            stock_val += s['data']['0']['Close']
+            query = {'stockSymbol':s}
+            newvalues = { "$set": {"currentValue":s['data']['0']['Close']} }
+            self.inventory.update_one(query, newvalues)
+        query = {'documentID':'currentValues'}
+        newvalues = { "$set": {"stock":stock_val} }
+        self.currentData.update_one(newvalues)
+        return
+
+
+
 
 
 class TradeStrategy:
