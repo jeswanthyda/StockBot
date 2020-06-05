@@ -4,6 +4,7 @@ from dateutil import tz
 import pandas as pd 
 import numpy as np
 import time
+from pytz import timezone
 import sys
 sys.path.append('./webscraper')
 from test_mongo import webscrape_companies,intraday_updates
@@ -57,7 +58,7 @@ class MDB:
             'action':action
         }
         x = self.tradelogs.insert_one(log)
-        print('check:',symbol,action)
+        # print('check:',symbol,action)
         return
     
     def add_inventory(self,timestamp,symbol,buyvalue,currentvalue,action,volume):
@@ -99,14 +100,15 @@ class MDB:
         symbols = x['stockSymbols'] + x['carryForward']
         return symbols
 
-    def update_stocks_live(self):
+    def update_stocks_live(self,num_minutes_data,num_stocks):
         est = timezone('US/Eastern')
         if datetime.now(est).hour == 9 and datetime.now(est).minute == 0:
-            webscrape_companies(self.db)
+            print('here 9')
+            webscrape_companies(self.db,num_stocks)
         #webscrape_companies()
         symbols = self.get_allstocks()
         try:
-            intraday_updates(self.db, symbols, num_minutes_data,num_stocks)
+            intraday_updates(self.db, symbols, num_minutes_data)
         except:
             pass
 
@@ -163,6 +165,11 @@ class TradeStrategy:
 
     def __init__(self):
         pass
+    
+    def is_take_action(self,old_timestamp,new_timestamp):
+        if old_timestamp == new_timestamp:
+            return True
+        return False
 
     def trade_stratgy(self,df,short_window=15,long_window=60):
         short_window = short_window
@@ -204,12 +211,14 @@ class TradeStrategy:
         #print(timestamp)
 
         stockvalue = df.iloc[-1,:]['Close']
-        print(timestamp, action, stockvalue)
+        # print(timestamp, action, stockvalue)
         return timestamp, action, stockvalue
 
     def calculate_maxBuyingCap(self,cash,av_stocks):
-        cap = cash/av_stocks
-        return cap
+        if av_stocks>0:
+            cap = cash/av_stocks
+            return cap
+        return 0
 
     def calulate_profit(self,buying_price,selling_price,volume):
         profit = (selling_price-buying_price)*volume

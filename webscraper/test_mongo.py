@@ -10,7 +10,7 @@ from datetime import datetime
 from pytz import timezone
 import time
 
-def webscrape_companies(db):
+def webscrape_companies(db,num_stocks):
     names = []
     symbols = []
     #r = requests.get('https://finance.yahoo.com/gainers')
@@ -49,7 +49,7 @@ def webscrape_companies(db):
     #delete all documents in the collection from previous day
     db.intraday_stockval.delete_many({})
 
-def intraday_updates(db,symbols, num_minutes_data, num_stocks):
+def intraday_updates(db,symbols, num_minutes_data):
     #symbols = symbols[0:num_stocks]
     est = timezone('US/Eastern')
     
@@ -69,5 +69,6 @@ def intraday_updates(db,symbols, num_minutes_data, num_stocks):
         db.intraday_stockval.update({"document-id": "stock_{}".format(i)}, 
                                     {"document-id": "stock_{}".format(i),"index": symbol,"last-refreshed": datetime.now(est), "data": data_dict}, 
                                     upsert= True)
+        print('check')
         
         
