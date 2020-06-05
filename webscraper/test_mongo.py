@@ -10,7 +10,7 @@ from datetime import datetime
 from pytz import timezone
 import time
 
-def webscrape_companies():
+def webscrape_companies(db):
     names = []
     symbols = []
     #r = requests.get('https://finance.yahoo.com/gainers')
@@ -49,7 +49,7 @@ def webscrape_companies():
     #delete all documents in the collection from previous day
     db.intraday_stockval.delete_many({})
 
-def intraday_updates(symbols, num_minutes_data, num_stocks):
+def intraday_updates(db,symbols, num_minutes_data, num_stocks):
     #symbols = symbols[0:num_stocks]
     est = timezone('US/Eastern')
     
@@ -70,22 +70,4 @@ def intraday_updates(symbols, num_minutes_data, num_stocks):
                                     {"document-id": "stock_{}".format(i),"index": symbol,"last-refreshed": datetime.now(est), "data": data_dict}, 
                                     upsert= True)
         
-if __name__ == "__main__":
-    client = MongoClient("mongodb+srv://dbuser:StockBot@cluster0-gbfdp.mongodb.net/test?retryWrites=true&w=majority")
-    db = client.Portfolio
-    num_minutes_data = 120
-    num_stocks = 10
-    while True:
-        est = timezone('US/Eastern')
-        if datetime.now(est).hour == 9 and datetime.now(est).minute == 0:
-            webscrape_companies()
-        #webscrape_companies()
-        query = {'documentID':'currentStocks'}
-        x = db.currentData.find_one(query)
-        symbols = x['stockSymbols'] + x['carryForward']
-        try:
-            intraday_updates(symbols, num_minutes_data,num_stocks)
-        except:
-            pass
-        time.sleep(60)
         

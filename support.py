@@ -4,14 +4,9 @@ import time
 from datetime import datetime
 import sys
 from pytz import timezone
-sys.path.append('./webscraper')
-from test_mongo import webscrape_companies,intraday_updates
-
 
 database = MDB('dbuser','StockBot')
 trade = TradeStrategy()
-
-
 
 
 if __name__ == "__main__":
@@ -23,17 +18,8 @@ if __name__ == "__main__":
 
         # TODO: Raksha - Update this part and utils
         #Step1 - update hot stocks - should be one line call (check for 9 am and tackling inventory has to happen in some class method)
-        est = timezone('US/Eastern')
-        if datetime.now(est).hour == 9 and datetime.now(est).minute == 0:
-            webscrape_companies()
-        #webscrape_companies()
-        query = {'documentID':'currentStocks'}
-        x = database.currentData.find_one(query)
-        symbols = x['stockSymbols'] + x['carryForward']
-        try:
-            intraday_updates(symbols, num_minutes_data,num_stocks)
-        except:
-            pass
+
+        database.update_stocks_live()
 
         #Step2 - get all inventory and update current values of stocks in inventory and stock value in current data - one liner
         database.update_stock_val_inventory()

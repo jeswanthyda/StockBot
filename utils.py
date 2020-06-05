@@ -4,6 +4,10 @@ from dateutil import tz
 import pandas as pd 
 import numpy as np
 import time
+import sys
+sys.path.append('./webscraper')
+from test_mongo import webscrape_companies,intraday_updates
+
 """
 All the classes and required methods go here
 """
@@ -16,13 +20,13 @@ class MDB:
 
     def __init__(self,username,password): #Authorize with username and password while initializing
         client = pymongo.MongoClient("mongodb+srv://{}:{}@cluster0-gbfdp.mongodb.net/test?retryWrites=true&w=majority".format(username,password))
-        db = client.Portfolio
+        self.db = client.Portfolio
 
         #Create handles for collections here
-        self.currentData = db.currentData
-        self.inventory = db.inventory
-        self.intraday = db.intraday_stockval
-        self.tradelogs = db.tradeLogs
+        self.currentData = self.db.currentData
+        self.inventory = self.db.inventory
+        self.intraday = self.db.intraday_stockval
+        self.tradelogs = self.db.tradeLogs
         #Change time zone to EST
         self.from_zone = tz.gettz('UTC')
         self.to_zone = tz.gettz('America/New_York')
@@ -88,6 +92,23 @@ class MDB:
         return
 
     # Raksha Functions that depend on MongoDB
+
+    def get_allstocks(self):
+        query = {'documentID':'currentStocks'}
+        x = self.currentData.find_one(query)
+        symbols = x['stockSymbols'] + x['carryForward']
+        return symbols
+
+    def update_stocks_live(self):
+        est = timezone('US/Eastern')
+        if datetime.now(est).hour == 9 and datetime.now(est).minute == 0:
+            webscrape_companies(self.db)
+        #webscrape_companies()
+        symbols = self.get_allstocks()
+        try:
+            intraday_updates(self.db, symbols, num_minutes_data,num_stocks)
+        except:
+            pass
 
     # Jeswanth Functions that depend on MongoDB
     def get_current_values(self):
