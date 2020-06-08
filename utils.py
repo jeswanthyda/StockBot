@@ -31,6 +31,15 @@ class MDB:
         #Change time zone to EST
         self.from_zone = tz.gettz('UTC')
         self.to_zone = tz.gettz('America/New_York')
+        #Initial Portfolio
+
+    def initialize_portfolio(self,capital):
+        myquery = {'documentID': 'currentValues'}
+        newvalues = { "$set": { "cash":capital,
+                                "capital":capital,
+                                "stock":0,
+                                'profit':0 } }
+        self.currentData.update_one(myquery, newvalues)
     
     # Ruturaj Functions that depend on MongoDB
 
@@ -141,17 +150,15 @@ class MDB:
         
         return stock_names,stock_timestamp_price
     
-    def get_inventory_symb(self):
-        symbs = [col['stockSymbol'] for col in self.inventory.find()]
-        return symbs
+    
 
 
     def update_stock_val_inventory(self):
-        symbols = self.get_inventory_symb()
+        symb_vol = [(col['stockSymbol'],col['volume']) for col in self.inventory.find()]
         stock_val = 0
-        for symbol in symbols:
+        for (symbol,volume) in symb_vol:
             s = self.intraday.find_one({'index':symbol})
-            stock_val += s['data'][0]['Close']
+            stock_val += s['data'][0]['Close']*volume
             query = {'stockSymbol':s}
             newvalues = { "$set": {"currentValue":s['data'][0]['Close']} }
             self.inventory.update_one(query, newvalues)

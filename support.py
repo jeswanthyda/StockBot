@@ -5,19 +5,31 @@ from datetime import datetime
 import sys
 from pytz import timezone
 
-database = MDB('dbuser','StockBot')
-trade = TradeStrategy()
-
-
 if __name__ == "__main__":
+
+    #Initialization
+    database = MDB('dbuser','StockBot')
+    trade = TradeStrategy()
+
     old_timestamp = 0
     new_timestamp = 1
+    num_minutes = 120
+    num_stocks = 10
+
+    #Clear all data in mongoDB
+    database.intraday.delete_many({})
+    database.inventory.delete_many({})
+    database.tradelogs.delete_many({})
+
+    #Initialize Portfolio with 10000USD Cash
+    database.initialize_portfolio(capital=10000)
+    
     while True:
         timeBegin = time.time()
 
         #Step1 - update hot stocks - should be one line call (check for 9 am and tackling inventory has to happen in some class method)
 
-        database.update_stocks_live(120,10)
+        database.update_stocks_live(num_minutes,num_stocks)
 
         #Step2 - get all inventory and update current values of stocks in inventory and stock value in current data - one liner
         database.update_stock_val_inventory()
@@ -30,6 +42,8 @@ if __name__ == "__main__":
             stocks[cols['index']]=pd.DataFrame(cols['data']).set_index('Datetime')        
         new_timestamp = list(stocks.values())[0].index[0]
 
+        
+        print(old_timestamp,new_timestamp)
         if trade.is_take_action(old_timestamp,new_timestamp):
             # Inside for loop
                 #Step4 - generate action signal for stock - one liner
@@ -54,7 +68,6 @@ if __name__ == "__main__":
         old_timestamp = new_timestamp            
         #trigger when mongo is updated
         print("Sleep for a minute")
-        print(old_timestamp,new_timestamp)
         timeEnd = time.time()
         timeElapsed = timeEnd - timeBegin
         time.sleep(60-timeElapsed)
